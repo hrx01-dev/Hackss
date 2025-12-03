@@ -17,7 +17,7 @@ import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.R
+import com.runanywhere.startup_hackathon20.R
 
 @Composable
 fun AuthScreen(onComplete: () -> Unit) {
