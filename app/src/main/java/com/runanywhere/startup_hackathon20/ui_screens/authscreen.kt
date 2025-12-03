@@ -144,3 +144,82 @@ fun AuthScreen(onComplete: () -> Unit) {
         }
     }
 }
+
+fun FloatingBubbles() {
+    val infinite = rememberInfiniteTransition()
+
+    val anim1 by infinite.animateFloat(
+        initialValue = 0f, targetValue = 20f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        drawCircle(Color(0x8032CD32), radius = 100f, center = Offset(200f, 200f + anim1))
+        drawCircle(Color(0x4028A745), radius = 150f, center = Offset(size.width - 150f, 300f - anim1))
+        drawCircle(Color(0x6020B2AA), radius = 120f, center = Offset(100f, size.height - 300f + anim1))
+    }
+}
+
+fun TabButton(text: String, active: String, onClick: () -> Unit) {
+    val isActive = text == active
+
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(14.dp))
+            .background(if (isActive) Color.White else Color.Transparent)
+            .clickable { onClick() }
+            .padding(vertical = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text.replaceFirstChar { it.uppercase() },
+            color = if (isActive) Color(0xFF2EAD73) else Color.Gray
+        )
+    }
+}
+
+fun InputField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    icon: Int,
+    isPassword: Boolean = false
+) {
+    Column(Modifier.padding(bottom = 12.dp)) {
+
+        Text(label, color = Color.DarkGray)
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFFEAEAEA))
+                .padding(12.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = label,
+                tint = Color.Gray
+            )
+
+            Spacer(Modifier.width(12.dp))
+
+            TextField(
+                value = value,
+                onValueChange = onValueChange,
+                placeholder = { Text("Enter $label") },
+                visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color.Transparent,
+                    cursorColor = Color.Green,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}

@@ -286,3 +286,4 @@ fun DefaultPreview() {
         ChatScreen()
     }
 }
+
