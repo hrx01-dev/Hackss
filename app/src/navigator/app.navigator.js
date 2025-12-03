@@ -1,12 +1,12 @@
-Import splashscreen from '../screens/splashscreen
-Import medicinescreen from '../screens/medicinescreen
-Import  authscreen from '../screens/authscreen
-Import  chatscreen from '../screens/chatscreen
-Import  homescreen from '../screens/homescreen
-Import insightscreen from '../screens/insightscreen
-Import notification from '../screens/notification
-Import onboardingscreen from '../screens/onboardingscreen
-Import settingscreen from '../screens/settingscreen
+import splashscreen from '../screens/splashscreen
+import medicinescreen from '../screens/medicinescreen
+import  authscreen from '../screens/authscreen
+import  chatscreen from '../screens/chatscreen
+import  homescreen from '../screens/homescreen
+import insightscreen from '../screens/insightscreen
+import notification from '../screens/notification
+import onboardingscreen from '../screens/onboardingscreen
+import settingscreen from '../screens/settingscreen
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {
