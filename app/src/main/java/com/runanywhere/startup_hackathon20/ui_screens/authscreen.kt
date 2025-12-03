@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.runanywhere.startup_hackathon20.R
 
@@ -222,4 +223,9 @@ fun InputField(
             )
         }
     }
+}
+@Preview(showBackground = true)
+@Composable
+fun authscreenPreview(){
+   authScreen(onComplete={})
 }
