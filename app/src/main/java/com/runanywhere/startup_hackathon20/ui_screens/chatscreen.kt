@@ -80,7 +80,7 @@ fun ChatScreen(
                         .background(Color.White.copy(alpha = 0.2f))
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_left),
+                        painter = painterResource(id = drawable.ic_arrow_left),
                         contentDescription = "Back",
                         tint = Color.White
                     )
@@ -96,7 +96,7 @@ fun ChatScreen(
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_wifi_off),
+                            painter = painterResource(id = drawable.ic_wifi_off),
                             contentDescription = "",
                             tint = Color.White,
                             modifier = Modifier.size(14.dp)
@@ -234,7 +234,7 @@ fun ChatScreen(
                     )
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_send),
+                    painter = painterResource(id = drawable.ic_send),
                     contentDescription = "Send",
                     tint = Color.White
                 )
