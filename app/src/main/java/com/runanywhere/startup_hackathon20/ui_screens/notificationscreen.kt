@@ -115,7 +115,7 @@ fun InsightCard(insight: Insight) {
             .background(Color.White, RoundedCornerShape(18.dp))
             .padding(16.dp)
     ) {
-        Row(verticalAlignment = Alignment.Start) {
+        Row(verticalAlignment = Alignment.Top) {
 
             // ICON GRADIENT BOX
             Box(
