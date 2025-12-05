@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
+import com.runanywhere.navigation.AppNavGraph
 import com.runanywhere.startup_hackathon20.ui.theme.Startup_hackathon20Theme
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +24,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Startup_hackathon20Theme {
-                ChatScreen()
+                val navController = rememberNavController()
+                AppNavGraph(navController = navController)
             }
         }
     }
@@ -286,4 +289,3 @@ fun DefaultPreview() {
         ChatScreen()
     }
 }
-

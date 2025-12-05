@@ -102,6 +102,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
 
+    // Navigation Compose
+    implementation("androidx.navigation:navigation-compose:2.8.5")
+
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
