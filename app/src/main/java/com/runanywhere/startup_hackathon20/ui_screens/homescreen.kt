@@ -1,12 +1,14 @@
 package com.runanywhere.startup_hackathon20.ui_screens
 
 import androidx.compose.foundation.background
-
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,9 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.runanywhere.startup_hackathon20.R
 
 data class Insight(
@@ -25,13 +30,19 @@ data class Insight(
     val time: String
 )
 
+data class Category(
+    val icon: ImageVector,
+    val title: String,
+    val gradient: List<Color>
+)
+
 @Composable
 fun HomeScreen(
     onNavigate: (String) -> Unit
 ) {
     val categories = listOf(
-        Triple(R.drawable.ic_pill, "Add Medicine", listOf(Color(0xFF4CAF50), Color(0xFF2ECC71))),
-        Triple(R.drawable.ic_trending_up, "Insights", listOf(Color(0xFF2ECC71), Color(0xFF4CAF50)))
+        Category(Icons.Default.Add, "Add Medicine", listOf(Color(0xFF4CAF50), Color(0xFF2ECC71))),
+        Category(Icons.Default.Insights, "Insights", listOf(Color(0xFF2ECC71), Color(0xFF4CAF50)))
     )
 
     val recentInsights = listOf(
@@ -76,7 +87,7 @@ fun HomeScreen(
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.ic_wifi_off),
+                                    imageVector = Icons.Default.WifiOff,
                                     contentDescription = "",
                                     tint = Color.White,
                                     modifier = Modifier.size(18.dp)
@@ -93,11 +104,11 @@ fun HomeScreen(
                         // Top buttons
                         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                             CircleIconButton(
-                                icon = R.drawable.ic_bell
+                                icon = Icons.Default.Notifications
                             ) { onNavigate("notifications") }
 
                             CircleIconButton(
-                                icon = R.drawable.ic_settings
+                                icon = Icons.Default.Settings
                             ) { onNavigate("settings") }
                         }
                     }
@@ -112,7 +123,7 @@ fun HomeScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_message_circle),
+                            imageVector = Icons.Default.Chat,
                             contentDescription = "",
                             tint = Color(0xFF2ECC71)
                         )
@@ -140,14 +151,14 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
-                categories.forEach { (icon, title, gradient) ->
+                categories.forEach { category ->
                     CategoryCard(
-                        icon = icon,
-                        label = title,
-                        gradient = gradient
+                        icon = category.icon,
+                        label = category.title,
+                        gradient = category.gradient
                     ) {
                         onNavigate(
-                            when (title) {
+                            when (category.title) {
                                 "Add Medicine" -> "addMedicine"
                                 "Insights" -> "insights"
                                 else -> ""
@@ -186,7 +197,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun CircleIconButton(icon: Int, onClick: () -> Unit) {
+fun CircleIconButton(icon: ImageVector, onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
         modifier = Modifier
@@ -195,7 +206,7 @@ fun CircleIconButton(icon: Int, onClick: () -> Unit) {
             .background(Color.White.copy(alpha = 0.2f))
     ) {
         Icon(
-            painter = painterResource(id = icon),
+            imageVector = icon,
             contentDescription = "",
             tint = Color.White
         )
@@ -203,7 +214,12 @@ fun CircleIconButton(icon: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun CategoryCard(icon: Int, label: String, gradient: List<Color>, onClick: () -> Unit) {
+fun RowScope.CategoryCard(
+    icon: ImageVector,
+    label: String,
+    gradient: List<Color>,
+    onClick: () -> Unit
+) {
     Button(
         onClick = onClick,
         modifier = Modifier.weight(1f),
@@ -222,7 +238,7 @@ fun CategoryCard(icon: Int, label: String, gradient: List<Color>, onClick: () ->
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(id = icon),
+                    imageVector = icon,
                     contentDescription = "",
                     tint = Color.White,
                     modifier = Modifier.size(28.dp)
@@ -234,4 +250,9 @@ fun CategoryCard(icon: Int, label: String, gradient: List<Color>, onClick: () ->
             Text(label, color = Color.Black)
         }
     }
+}
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    HomeScreen(onNavigate = {})
 }

@@ -18,7 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.runanywhere.startup_hackathon20.app.R
+import com.runanywhere.startup_hackathon20.R
 
 data class Message(
     val text: String,

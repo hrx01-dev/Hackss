@@ -10,60 +10,54 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.runanywhere.startup_hackathon20.database.MedicineEntity
+import com.runanywhere.startup_hackathon20.viewmodel.MedicineViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 data class Medicine(
+    val id: Long = 0,
     val name: String,
     val dosage: String,
     val frequency: String,
     val time: String,
     val duration: String,
     val quantity: String,
-    val instructions: String
+    val instructions: String,
+    val createdAt: Long = System.currentTimeMillis()
 )
 
-data class Prescription(
-    val id: String,
-    val patientName: String,
-    val date: String,
-    val medicines: List<Medicine>
+fun MedicineEntity.toMedicine() = Medicine(
+    id = id,
+    name = name,
+    dosage = dosage,
+    frequency = frequency,
+    time = time,
+    duration = duration,
+    quantity = quantity,
+    instructions = instructions,
+    createdAt = createdAt
 )
 
 @Composable
-fun InsightsScreen(onBack: () -> Unit) {
-
-    val prescriptions = listOf(
-        Prescription(
-            id = "RX001",
-            patientName = "John Doe",
-            date = "Nov 30, 2025",
-            medicines = listOf(
-                Medicine(
-                    name = "Amoxicillin",
-                    dosage = "500mg",
-                    frequency = "Three times a day",
-                    time = "After meals",
-                    duration = "7 days",
-                    quantity = "21 tablets",
-                    instructions = "Take with plenty of water. Complete the full course."
-                ),
-                Medicine(
-                    name = "Paracetamol",
-                    dosage = "650mg",
-                    frequency = "As needed",
-                    time = "When required for fever",
-                    duration = "5 days",
-                    quantity = "10 tablets",
-                    instructions = "Do not exceed 4 doses in 24 hours. Take with food if stomach upset occurs."
-                )
-            )
-        )
-    )
+fun InsightsScreen(
+    onBack: () -> Unit,
+    viewModel: MedicineViewModel = viewModel()
+) {
+    val medicines by viewModel.allMedicines.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
 
     Column(
         Modifier
@@ -88,94 +82,88 @@ fun InsightsScreen(onBack: () -> Unit) {
             )
         }
 
+        // Error message
+        error?.let { errorMessage ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFEE2E2))
+            ) {
+                Text(
+                    text = errorMessage,
+                    modifier = Modifier.padding(16.dp),
+                    color = Color(0xFFDC2626)
+                )
+            }
+        }
+
         Column(
             Modifier
+                .weight(1f)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            prescriptions.forEach { prescription ->
-                PrescriptionCard(prescription)
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xFF34D399))
+                }
+            } else if (medicines.isEmpty()) {
+                // Empty state
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MedicalServices,
+                        contentDescription = null,
+                        modifier = Modifier.size(80.dp),
+                        tint = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "No Medicines Added Yet",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Add medicines from the home screen to see them here",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.LightGray,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            } else {
+                medicines.forEach { medicineEntity ->
+                    MedicineCard(
+                        medicine = medicineEntity.toMedicine(),
+                        onDelete = { viewModel.deleteMedicine(medicineEntity) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text(
-                "🔒 All prescriptions stored securely offline",
+                "🔒 All medicines stored securely offline",
                 Modifier.fillMaxWidth(),
                 color = Color.Gray,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
             )
         }
     }
 }
 
-@Composable
-fun PrescriptionCard(prescription: Prescription) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(bottom = 20.dp)
-            .shadow(4.dp, RoundedCornerShape(22.dp))
-            .background(Color.White, RoundedCornerShape(22.dp))
-            .padding(20.dp)
-    ) {
 
-        // HEADER
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text("MediInsight", fontWeight = FontWeight.Bold, color = Color.Black)
-                Text("Digital Prescription", color = Color.Gray)
-            }
-
-            Box(
-                Modifier
-                    .size(60.dp)
-                    .background(Color(0xFF34D399), RoundedCornerShape(16.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Description, contentDescription = null, tint = Color.White)
-            }
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        // INFO GRID
-        InfoItem(Icons.Default.Person, "Patient Name", prescription.patientName)
-        InfoItem(Icons.Default.CalendarToday, "Date", prescription.date)
-        InfoItem(Icons.Default.Tag, "Prescription ID", prescription.id)
-
-        Spacer(Modifier.height(16.dp))
-
-        Text(
-            "Prescribed Medications",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(Modifier.height(10.dp))
-
-        prescription.medicines.forEachIndexed { index, medicine ->
-            MedicineCard(medicine, index)
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        Divider()
-        Text(
-            "This is a digital prescription stored securely on your device.",
-            Modifier.padding(top = 12.dp),
-            color = Color.Gray,
-            style = MaterialTheme.typography.labelSmall
-        )
-        Text(
-            "Generated by MediInsight Offline Expert System",
-            Modifier.padding(top = 4.dp),
-            color = Color.Gray,
-            style = MaterialTheme.typography.labelSmall
-        )
-    }
-}
 
 @Composable
 fun InfoItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String) {
@@ -194,52 +182,138 @@ fun InfoItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: Strin
 }
 
 @Composable
-fun MedicineCard(medicine: Medicine, index: Int) {
+fun MedicineCard(medicine: Medicine, onDelete: () -> Unit) {
+    val dateFormat = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.getDefault())
+    val formattedDate = dateFormat.format(Date(medicine.createdAt))
+
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .background(Color(0xFFEFFDF4), RoundedCornerShape(18.dp))
-            .border(1.dp, Color(0xFFBBF7D0), RoundedCornerShape(18.dp))
-            .padding(16.dp)
+            .shadow(4.dp, RoundedCornerShape(22.dp))
+            .background(Color.White, RoundedCornerShape(22.dp))
+            .padding(20.dp)
     ) {
-
+        // Header with medicine name and delete button
         Row(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(medicine.name, fontWeight = FontWeight.Bold)
-                Text(medicine.dosage, color = Color(0xFF059669))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    medicine.name,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.Black
+                )
+                Text(
+                    "Added: $formattedDate",
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
 
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete medicine",
+                    tint = Color(0xFFEF4444)
+                )
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        // Medicine icon with dosage
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Box(
                 Modifier
-                    .background(Color.White, RoundedCornerShape(50))
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                    .size(60.dp)
+                    .background(Color(0xFF34D399), RoundedCornerShape(16.dp)),
+                contentAlignment = Alignment.Center
             ) {
-                Text("#${index + 1}", color = Color.Black)
+                Icon(
+                    Icons.Default.MedicalServices,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(32.dp)
+                )
             }
+
+            Spacer(Modifier.width(12.dp))
+
+            Column {
+                Text("Dosage", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                Text(
+                    medicine.dosage,
+                    color = Color(0xFF059669),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        // Medicine details
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFEFFDF4), RoundedCornerShape(18.dp))
+                .border(1.dp, Color(0xFFBBF7D0), RoundedCornerShape(18.dp))
+                .padding(16.dp)
+        ) {
+            InfoGrid("Frequency", medicine.frequency)
+            InfoGrid("Time", medicine.time)
+            InfoGrid("Duration", medicine.duration)
+            InfoGrid("Quantity", medicine.quantity)
         }
 
         Spacer(Modifier.height(12.dp))
 
-        InfoGrid("Frequency", medicine.frequency)
-        InfoGrid("Time", medicine.time)
-        InfoGrid("Duration", medicine.duration)
-        InfoGrid("Quantity", medicine.quantity)
-
-        Spacer(Modifier.height(10.dp))
-
+        // Instructions section
         Column(
             Modifier
-                .background(Color.White, RoundedCornerShape(12.dp))
+                .fillMaxWidth()
+                .background(Color(0xFFF3F4F6), RoundedCornerShape(12.dp))
                 .padding(12.dp)
         ) {
-            Text("Instructions", color = Color.Gray, fontSize = MaterialTheme.typography.labelSmall.fontSize)
-            Spacer(Modifier.height(6.dp))
-            Text(medicine.instructions)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = Color(0xFF34D399),
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "Instructions",
+                    color = Color(0xFF059669),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                medicine.instructions,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF374151)
+            )
         }
+
+        Spacer(Modifier.height(12.dp))
+
+        Divider()
+
+        Text(
+            "🔒 Stored securely on your device",
+            Modifier.padding(top = 8.dp),
+            color = Color.Gray,
+            style = MaterialTheme.typography.labelSmall
+        )
     }
 }
 
