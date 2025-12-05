@@ -7,6 +7,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,11 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.runanywhere.startup_hackathon20.R
 
 data class Message(
     val text: String,
@@ -80,7 +82,7 @@ fun ChatScreen(
                         .background(Color.White.copy(alpha = 0.2f))
                 ) {
                     Icon(
-                        painter = painterResource(id = drawable.ic_arrow_left),
+                        imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
                         tint = Color.White
                     )
@@ -96,7 +98,7 @@ fun ChatScreen(
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            painter = painterResource(id = drawable.ic_wifi_off),
+                            imageVector = Icons.Default.WifiOff,
                             contentDescription = "",
                             tint = Color.White,
                             modifier = Modifier.size(14.dp)
@@ -123,6 +125,7 @@ fun ChatScreen(
 
                     Box(
                         modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
                             .background(
                                 if (message.isUser) {
                                     Brush.linearGradient(
@@ -131,8 +134,11 @@ fun ChatScreen(
                                             Color(0xFF2ECC71)
                                         )
                                     )
-                                } else Color.White,
-                                shape = RoundedCornerShape(20.dp)
+                                } else {
+                                    Brush.linearGradient(
+                                        listOf(Color.White, Color.White)
+                                    )
+                                }
                             )
                             .padding(14.dp)
                             .widthIn(max = 260.dp)
@@ -234,7 +240,7 @@ fun ChatScreen(
                     )
             ) {
                 Icon(
-                    painter = painterResource(id = drawable.ic_send),
+                    imageVector = Icons.Default.Send,
                     contentDescription = "Send",
                     tint = Color.White
                 )
