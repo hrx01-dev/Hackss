@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -228,7 +229,7 @@ fun ThemeOption(
             if (selected) {
                 Box(
                     Modifier
-                         .size(24.dp)
+                        .size(24.dp)
                         .background(Color(0xFF10B981), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
