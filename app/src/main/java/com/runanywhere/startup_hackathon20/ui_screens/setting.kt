@@ -228,7 +228,7 @@ fun ThemeOption(
             if (selected) {
                 Box(
                     Modifier
-                        .size(24.dp)
+                         .size(24.dp)
                         .background(Color(0xFF10B981), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
