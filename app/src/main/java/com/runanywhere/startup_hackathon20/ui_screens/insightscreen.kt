@@ -19,9 +19,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.runanywhere.startup_hackathon20.database.MedicineEntity
+import com.runanywhere.startup_hackathon20.ui.theme.Startup_hackathon20Theme
 import com.runanywhere.startup_hackathon20.viewmodel.MedicineViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -332,3 +334,33 @@ fun InfoGrid(label: String, value: String) {
     }
 }
 
+@Preview(showBackground = true, showSystemUi = true, name = "Insights Screen - Empty")
+@Composable
+fun InsightsScreenEmptyPreview() {
+    Startup_hackathon20Theme {
+        InsightsScreen(onBack = {})
+    }
+}
+
+@Preview(showBackground = true, name = "Medicine Card", widthDp = 400)
+@Composable
+fun MedicineCardPreview() {
+    Startup_hackathon20Theme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            MedicineCard(
+                medicine = Medicine(
+                    id = 1,
+                    name = "Aspirin",
+                    dosage = "500mg",
+                    frequency = "Twice daily",
+                    time = "After meals",
+                    duration = "7 days",
+                    quantity = "14 tablets",
+                    instructions = "Take with plenty of water. Do not exceed recommended dosage.",
+                    createdAt = System.currentTimeMillis()
+                ),
+                onDelete = {}
+            )
+        }
+    }
+}

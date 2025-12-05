@@ -24,12 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.runanywhere.startup_hackathon20.R
 
-data class Insight(
-    val title: String,
-    val description: String,
-    val time: String
-)
-
 data class Category(
     val icon: ImageVector,
     val title: String,
@@ -251,8 +245,29 @@ fun RowScope.CategoryCard(
         }
     }
 }
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true, name = "Home Screen - Full")
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen(onNavigate = {})
+    com.runanywhere.startup_hackathon20.ui.theme.Startup_hackathon20Theme {
+        HomeScreen(onNavigate = {})
+    }
+}
+
+@Preview(showBackground = true, name = "Category Card", widthDp = 200, heightDp = 180)
+@Composable
+fun CategoryCardPreview() {
+    com.runanywhere.startup_hackathon20.ui.theme.Startup_hackathon20Theme {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            CategoryCard(
+                icon = Icons.Default.Add,
+                label = "Add Medicine",
+                gradient = listOf(Color(0xFF4CAF50), Color(0xFF2ECC71))
+            ) {}
+        }
+    }
 }

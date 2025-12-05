@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.runanywhere.startup_hackathon20.ui.theme.Startup_hackathon20Theme
 import com.runanywhere.startup_hackathon20.viewmodel.MedicineViewModel
 
 @Composable
@@ -403,5 +404,16 @@ fun AddMedicineScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun AddMedicineScreenPreview() {
+    Startup_hackathon20Theme {
+        AddMedicineScreen(
+            onBack = {},
+            onMedicineAdded = {}
+        )
     }
 }
