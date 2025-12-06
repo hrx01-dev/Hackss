@@ -67,13 +67,24 @@ fun AuthScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Text("Welcome Back", fontSize = MaterialTheme.typography.headlineMedium.fontSize)
-            Text("Sign in to continue", color = Color.Gray, modifier = Modifier.padding(bottom = 20.dp))
+            Text(
+                "Welcome Back",
+                fontSize = MaterialTheme.typography.headlineMedium.fontSize,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                "Sign in to continue",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 20.dp)
+            )
 
             Card(
                 shape = RoundedCornerShape(28.dp),
                 elevation = CardDefaults.cardElevation(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
 
@@ -81,7 +92,10 @@ fun AuthScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFEFEFEF), RoundedCornerShape(20.dp))
+                            .background(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                RoundedCornerShape(20.dp)
+                            )
                             .padding(4.dp)
                     ) {
                         TabButton("login", activeTab) { activeTab = "login" }
@@ -218,14 +232,14 @@ fun RowScope.TabButton(text: String, active: String, onClick: () -> Unit) {
         modifier = Modifier
             .weight(1f)
             .clip(RoundedCornerShape(14.dp))
-            .background(if (isActive) Color.White else Color.Transparent)
+            .background(if (isActive) MaterialTheme.colorScheme.surface else Color.Transparent)
             .clickable { onClick() }
             .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text.replaceFirstChar { it.uppercase() },
-            color = if (isActive) Color(0xFF2EAD73) else Color.Gray
+            color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -247,23 +261,24 @@ fun InputField(
             label = {
                 Text(
                     label,
-                    color = if (isFocused) Color(0xFF2EAD73) else Color.Gray
+                    color = if (isFocused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             },
-            placeholder = { Text("Enter $label", color = Color.LightGray) },
+            placeholder = {
+                Text(
+                    "Enter $label",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                )
+            },
             leadingIcon = {
                 Box(
                     modifier = Modifier
                         .size(40.dp)
                         .background(
                             if (isFocused)
-                                Brush.linearGradient(
-                                    listOf(Color(0xFF4CAF50), Color(0xFF2EAD73))
-                                )
+                                MaterialTheme.colorScheme.primary
                             else
-                                Brush.linearGradient(
-                                    listOf(Color(0xFFE0E0E0), Color(0xFFBDBDBD))
-                                ),
+                                MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(10.dp)
                         ),
                     contentAlignment = Alignment.Center
@@ -271,7 +286,7 @@ fun InputField(
                     Icon(
                         painter = painterResource(id = icon),
                         contentDescription = label,
-                        tint = if (isFocused) Color.White else Color.Gray,
+                        tint = if (isFocused) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -282,13 +297,17 @@ fun InputField(
                 .onFocusChanged { isFocused = it.isFocused },
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF2EAD73),
-                unfocusedBorderColor = Color(0xFFE0E0E0),
-                focusedLabelColor = Color(0xFF2EAD73),
-                unfocusedLabelColor = Color.Gray,
-                cursorColor = Color(0xFF2EAD73),
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color(0xFFF8F9FA)
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                cursorColor = MaterialTheme.colorScheme.primary,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
             ),
             singleLine = true
         )

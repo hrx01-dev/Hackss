@@ -125,20 +125,20 @@ fun InsightsScreen(
                         imageVector = Icons.Default.MedicalServices,
                         contentDescription = null,
                         modifier = Modifier.size(80.dp),
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "No Medicines Added Yet",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Add medicines from the home screen to see them here",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.LightGray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -157,7 +157,7 @@ fun InsightsScreen(
             Text(
                 "🔒 All medicines stored securely offline",
                 Modifier.fillMaxWidth(),
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center
             )
@@ -174,11 +174,15 @@ fun InfoItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: Strin
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null, tint = Color(0xFF34D399))
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.width(8.dp))
         Column {
-            Text(label, color = Color.Gray, fontSize = MaterialTheme.typography.labelSmall.fontSize)
-            Text(value, fontWeight = FontWeight.Medium)
+            Text(
+                label,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = MaterialTheme.typography.labelSmall.fontSize
+            )
+            Text(value, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }
@@ -208,11 +212,11 @@ fun MedicineCard(medicine: Medicine, onDelete: () -> Unit) {
                     medicine.name,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     "Added: $formattedDate",
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -325,7 +329,7 @@ fun MedicineCard(medicine: Medicine, onDelete: () -> Unit) {
         Text(
             "🔒 Stored securely on your device",
             Modifier.padding(top = 8.dp),
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelSmall
         )
         }
@@ -338,12 +342,16 @@ fun InfoGrid(label: String, value: String) {
         Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .background(Color.White, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
             .padding(12.dp)
     ) {
-        Text(label, color = Color.Gray, fontSize = MaterialTheme.typography.labelSmall.fontSize)
+        Text(
+            label,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = MaterialTheme.typography.labelSmall.fontSize
+        )
         Spacer(Modifier.height(4.dp))
-        Text(value)
+        Text(value, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
