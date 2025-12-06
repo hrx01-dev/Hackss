@@ -6,6 +6,10 @@ class MedicineRepository(private val medicineDao: MedicineDao) {
 
     val allMedicines: Flow<List<MedicineEntity>> = medicineDao.getAllMedicines()
 
+    fun getMedicinesByUser(userId: Long): Flow<List<MedicineEntity>> {
+        return medicineDao.getMedicinesByUser(userId)
+    }
+
     suspend fun insertMedicine(medicine: MedicineEntity): Long {
         return medicineDao.insertMedicine(medicine)
     }
@@ -22,12 +26,20 @@ class MedicineRepository(private val medicineDao: MedicineDao) {
         medicineDao.deleteMedicine(medicine)
     }
 
+    suspend fun deleteAllMedicinesByUser(userId: Long) {
+        medicineDao.deleteAllMedicinesByUser(userId)
+    }
+
     suspend fun deleteAllMedicines() {
         medicineDao.deleteAllMedicines()
     }
 
     suspend fun getMedicineById(id: Long): MedicineEntity? {
         return medicineDao.getMedicineById(id)
+    }
+
+    suspend fun getMedicineCountByUser(userId: Long): Int {
+        return medicineDao.getMedicineCountByUser(userId)
     }
 
     suspend fun getMedicineCount(): Int {

@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [MedicineEntity::class, ChatMessageEntity::class, UserEntity::class],
-    version = 3,
+    version = 5,
     exportSchema = false
 )
 abstract class MedicineDatabase : RoomDatabase() {

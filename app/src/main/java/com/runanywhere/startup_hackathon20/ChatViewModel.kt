@@ -9,6 +9,7 @@ import com.runanywhere.sdk.models.ModelInfo
 import com.runanywhere.startup_hackathon20.database.ChatMessageEntity
 import com.runanywhere.startup_hackathon20.database.ChatMessageRepository
 import com.runanywhere.startup_hackathon20.database.MedicineDatabase
+import com.runanywhere.startup_hackathon20.database.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ data class ChatMessage(
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: ChatMessageRepository
+    private val userRepository: UserRepository
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages
 
@@ -43,18 +45,29 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val _statusMessage = MutableStateFlow<String>("Initializing...")
     val statusMessage: StateFlow<String> = _statusMessage
 
+    private val _currentUserId = MutableStateFlow<Long?>(null)
+
     init {
         val database = MedicineDatabase.getDatabase(application)
         val chatMessageDao = database.chatMessageDao()
+        val userDao = database.userDao()
         repository = ChatMessageRepository(chatMessageDao)
+        userRepository = UserRepository(userDao)
 
         loadAvailableModels()
-        loadMessagesFromDatabase()
+        
+        // Load current user
+        viewModelScope.launch {
+            userRepository.loggedInUser.collect { user ->
+                _currentUserId.value = user?.id
+                user?.id?.let { loadMessagesFromDatabase(it) }
+            }
+        }
     }
 
-    private fun loadMessagesFromDatabase() {
+    private fun loadMessagesFromDatabase(userId: Long) {
         viewModelScope.launch {
-            repository.recent20Messages.collect { dbMessages ->
+            repository.getRecent20MessagesByUser(userId).collect { dbMessages ->
                 _messages.value = dbMessages.map { entity ->
                     ChatMessage(
                         id = entity.id,
@@ -125,13 +138,20 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
+        val userId = _currentUserId.value
+        if (userId == null) {
+            _statusMessage.value = "No user logged in"
+            return
+        }
+
         viewModelScope.launch {
             // Save user message to database
             val userMessageEntity = ChatMessageEntity(
+                userId = userId,
                 text = text,
                 isUser = true
             )
-            repository.insertMessage(userMessageEntity)
+            repository.insertMessage(userMessageEntity, userId)
 
             _isLoading.value = true
 
@@ -147,27 +167,30 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     if (assistantMessageId == null) {
                         // First token - create new assistant message
                         val assistantEntity = ChatMessageEntity(
+                            userId = userId,
                             text = assistantResponse,
                             isUser = false
                         )
-                        assistantMessageId = repository.insertMessage(assistantEntity)
+                        assistantMessageId = repository.insertMessage(assistantEntity, userId)
                     } else {
                         // Update existing assistant message
                         val assistantEntity = ChatMessageEntity(
                             id = assistantMessageId!!,
+                            userId = userId,
                             text = assistantResponse,
                             isUser = false
                         )
-                        repository.insertMessage(assistantEntity)
+                        repository.insertMessage(assistantEntity, userId)
                     }
                 }
             } catch (e: Exception) {
                 // Save error message to database
                 val errorEntity = ChatMessageEntity(
+                    userId = userId,
                     text = "Error: ${e.message}",
                     isUser = false
                 )
-                repository.insertMessage(errorEntity)
+                repository.insertMessage(errorEntity, userId)
             }
 
             _isLoading.value = false
@@ -176,7 +199,10 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearAllMessages() {
         viewModelScope.launch {
-            repository.deleteAllMessages()
+            val userId = _currentUserId.value
+            if (userId != null) {
+                repository.deleteAllMessagesByUser(userId)
+            }
         }
     }
 

@@ -555,11 +555,13 @@ fun ChatScreen(
                                         },
                                         modifier = Modifier.weight(1f),
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color.White
+                                            containerColor = MaterialTheme.colorScheme.surfaceVariant
                                         ),
                                         enabled = currentModelId != null && !isLoading
                                     ) {
-                                        Text(suggestion, color = Color.Black)
+                                        Text(
+                                            suggestion,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
                             }
@@ -597,7 +599,7 @@ fun ChatScreen(
         // 🔥 INPUT FIELD + SEND BUTTON
         Row(
             modifier = Modifier
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -610,7 +612,9 @@ fun ChatScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface
                 )
             )
 
