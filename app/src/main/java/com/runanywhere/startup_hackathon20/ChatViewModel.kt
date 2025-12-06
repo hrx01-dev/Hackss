@@ -88,7 +88,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     _statusMessage.value = "Downloading: ${(progress * 100).toInt()}%"
                 }
                 _downloadProgress.value = null
-                _statusMessage.value = "Download complete! Please load the model."
+                _statusMessage.value = "Download complete! Loading model..."
+
+                // Automatically load the model after download
+                loadModel(modelId)
+
+                // Refresh the available models list to update download status
+                loadAvailableModels()
             } catch (e: Exception) {
                 _statusMessage.value = "Download failed: ${e.message}"
                 _downloadProgress.value = null

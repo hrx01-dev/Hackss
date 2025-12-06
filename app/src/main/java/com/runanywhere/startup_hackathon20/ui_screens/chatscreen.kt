@@ -134,6 +134,24 @@ fun ChatScreen(
                     }
                 }
 
+                // Model Selection Button - Always visible
+                IconButton(
+                    onClick = { showModelDialog = true },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_lightbulb),
+                        contentDescription = "Select Model",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(Modifier.width(8.dp))
+
                 // Clear Chat Button
                 if (messages.isNotEmpty()) {
                     var showDialog by remember { mutableStateOf(false) }
@@ -247,14 +265,28 @@ fun ChatScreen(
             AlertDialog(
                 onDismissRequest = { showModelDialog = false },
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_lightbulb),
                             contentDescription = null,
                             tint = Color(0xFF4CAF50)
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("AI Model Setup")
+                        Text("AI Model Setup", modifier = Modifier.weight(1f))
+                        IconButton(
+                            onClick = { viewModel.refreshModels() },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_send),
+                                contentDescription = "Refresh",
+                                tint = Color(0xFF4CAF50),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 },
                 text = {
@@ -264,32 +296,100 @@ fun ChatScreen(
                             Spacer(Modifier.height(8.dp))
                             Text("Loading available models...")
                         } else {
+                            // Show currently loaded model
+                            if (currentModelId != null) {
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color(0xFFE0F2F1)
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_wifi_off),
+                                            contentDescription = null,
+                                            tint = Color(0xFF00796B),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(
+                                            "Currently Loaded: ${availableModels.find { it.id == currentModelId }?.name ?: currentModelId}",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF00796B)
+                                        )
+                                    }
+                                }
+                            }
+
                             Text(
-                                "Choose an AI model to download and enable chat:",
+                                if (currentModelId == null)
+                                    "Choose an AI model to download and enable chat:"
+                                else
+                                    "Available models (download or switch):",
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             Spacer(Modifier.height(12.dp))
 
                             availableModels.forEach { model ->
+                                val isCurrentModel = model.id == currentModelId
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = Color(0xFFF0FDF4)
-                                    )
+                                        containerColor = if (isCurrentModel) Color(0xFFE8F5E9) else Color(
+                                            0xFFF0FDF4
+                                        )
+                                    ),
+                                    border = if (isCurrentModel) androidx.compose.foundation.BorderStroke(
+                                        2.dp,
+                                        Color(0xFF4CAF50)
+                                    ) else null
                                 ) {
                                     Column(modifier = Modifier.padding(12.dp)) {
-                                        Text(
-                                            model.name,
-                                            fontWeight = FontWeight.Bold,
-                                            style = MaterialTheme.typography.titleSmall
-                                        )
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text(
+                                                model.name,
+                                                fontWeight = FontWeight.Bold,
+                                                style = MaterialTheme.typography.titleSmall,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            if (isCurrentModel) {
+                                                Text(
+                                                    "Active",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = Color.White,
+                                                    modifier = Modifier
+                                                        .background(
+                                                            Color(0xFF4CAF50),
+                                                            RoundedCornerShape(4.dp)
+                                                        )
+                                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                                )
+                                            }
+                                        }
                                         Text(
                                             "Size: ~374 MB",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = Color.Gray
                                         )
+                                        if (model.isDownloaded) {
+                                            Text(
+                                                "✓ Downloaded",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = Color(0xFF4CAF50),
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
 
                                         Spacer(Modifier.height(8.dp))
 
@@ -318,10 +418,16 @@ fun ChatScreen(
                                                     },
                                                     modifier = Modifier.weight(1f),
                                                     colors = ButtonDefaults.buttonColors(
-                                                        containerColor = Color(0xFF2ECC71)
-                                                    )
+                                                        containerColor = if (isCurrentModel) Color(
+                                                            0xFF2196F3
+                                                        ) else Color(0xFF2ECC71)
+                                                    ),
+                                                    enabled = !isCurrentModel
                                                 ) {
-                                                    Text("Load Model", color = Color.White)
+                                                    Text(
+                                                        if (isCurrentModel) "Loaded" else "Load Model",
+                                                        color = Color.White
+                                                    )
                                                 }
                                             }
                                         }
