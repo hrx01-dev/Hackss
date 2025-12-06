@@ -23,26 +23,32 @@ class MyApplication : Application() {
 
     private suspend fun initializeSDK() {
         try {
+            Log.i("MyApp", "Starting SDK initialization...")
+
             // Step 1: Initialize SDK
             RunAnywhere.initialize(
                 context = this@MyApplication,
                 apiKey = "dev",  // Any string works in dev mode
                 environment = SDKEnvironment.DEVELOPMENT
             )
+            Log.i("MyApp", "SDK core initialized")
 
             // Step 2: Register LLM Service Provider
             LlamaCppServiceProvider.register()
+            Log.i("MyApp", "LLM Service Provider registered")
 
             // Step 3: Register Models
             registerModels()
+            Log.i("MyApp", "Models registered")
 
             // Step 4: Scan for previously downloaded models
             RunAnywhere.scanForDownloadedModels()
+            Log.i("MyApp", "Model scan completed")
 
             Log.i("MyApp", "SDK initialized successfully")
 
         } catch (e: Exception) {
-            Log.e("MyApp", "SDK initialization failed: ${e.message}")
+            Log.e("MyApp", "SDK initialization failed: ${e.message}", e)
         }
     }
 

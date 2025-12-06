@@ -47,6 +47,9 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _currentUserId = MutableStateFlow<Long?>(null)
 
+    private val _isModelVerified = MutableStateFlow(false)
+    val isModelVerified: StateFlow<Boolean> = _isModelVerified
+
     init {
         val database = MedicineDatabase.getDatabase(application)
         val chatMessageDao = database.chatMessageDao()
@@ -62,6 +65,25 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 _currentUserId.value = user?.id
                 user?.id?.let { loadMessagesFromDatabase(it) }
             }
+        }
+
+        // Try to auto-load a downloaded model if available
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(2000) // Wait for models to load
+            tryAutoLoadModel()
+        }
+    }
+
+    private suspend fun tryAutoLoadModel() {
+        try {
+            // Check if we have any downloaded models
+            val downloadedModel = _availableModels.value.firstOrNull { it.isDownloaded }
+            if (downloadedModel != null && _currentModelId.value == null) {
+                _statusMessage.value = "Auto-loading previously downloaded model..."
+                loadModel(downloadedModel.id)
+            }
+        } catch (e: Exception) {
+            // Silently fail - user can manually load if needed
         }
     }
 
@@ -119,22 +141,44 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 _statusMessage.value = "Loading model..."
+                _currentModelId.value = null // Clear current model first
+                _isModelVerified.value = false
+
                 val success = RunAnywhere.loadModel(modelId)
                 if (success) {
-                    _currentModelId.value = modelId
-                    _statusMessage.value = "Model loaded! Ready to chat."
+                    _statusMessage.value = "Verifying model..."
+                    // Give the model a moment to fully initialize
+                    kotlinx.coroutines.delay(1500)
+
+                    // Verify model is actually ready by doing a test generation
+                    try {
+                        val testResponse = RunAnywhere.generate("Hi")
+                        if (testResponse.isNotEmpty()) {
+                            _currentModelId.value = modelId
+                            _isModelVerified.value = true
+                            _statusMessage.value = "Model loaded and verified! Ready to chat."
+                        } else {
+                            throw Exception("Model loaded but not responding")
+                        }
+                    } catch (e: Exception) {
+                        throw Exception("Model verification failed: ${e.message}")
+                    }
                 } else {
-                    _statusMessage.value = "Failed to load model"
+                    _statusMessage.value = "Failed to load model. Please try again."
+                    _currentModelId.value = null
+                    _isModelVerified.value = false
                 }
             } catch (e: Exception) {
-                _statusMessage.value = "Error loading model: ${e.message}"
+                _statusMessage.value = "Error: ${e.message}. Please reload the model."
+                _currentModelId.value = null
+                _isModelVerified.value = false
             }
         }
     }
 
     fun sendMessage(text: String) {
-        if (_currentModelId.value == null) {
-            _statusMessage.value = "Please load a model first"
+        if (_currentModelId.value == null || !_isModelVerified.value) {
+            _statusMessage.value = "Please wait for model to fully load, then try again"
             return
         }
 
@@ -189,15 +233,42 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         repository.insertMessage(assistantEntity, userId)
                     }
                 }
+
+                // If response is empty, something went wrong
+                if (assistantResponse.isEmpty()) {
+                    val errorEntity = ChatMessageEntity(
+                        userId = userId,
+                        text = "Error: Model failed to generate a response. Try reloading the model.",
+                        isUser = false,
+                        timestamp = assistantTimestamp
+                    )
+                    repository.insertMessage(errorEntity, userId)
+                    _statusMessage.value = "Model not responding. Please reload the model."
+                    _currentModelId.value = null // Reset model state
+                    _isModelVerified.value = false
+                }
             } catch (e: Exception) {
                 // Save error message to database
+                val errorMessage = if (e.message?.contains("model", ignoreCase = true) == true) {
+                    "Model is not properly loaded. Please reload the model and try again."
+                } else {
+                    "Error: ${e.message}"
+                }
+
                 val errorEntity = ChatMessageEntity(
                     userId = userId,
-                    text = "Error: ${e.message}",
+                    text = errorMessage,
                     isUser = false,
                     timestamp = userTimestamp + 1
                 )
                 repository.insertMessage(errorEntity, userId)
+
+                // Reset model state if it's a model-related error
+                if (e.message?.contains("model", ignoreCase = true) == true) {
+                    _statusMessage.value = "Model error detected. Please reload the model."
+                    _currentModelId.value = null
+                    _isModelVerified.value = false
+                }
             }
 
             _isLoading.value = false

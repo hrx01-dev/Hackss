@@ -51,6 +51,7 @@ fun ChatScreen(
     val availableModels by (viewModel?.availableModels
         ?: MutableStateFlow(emptyList())).collectAsState()
     val downloadProgress by (viewModel?.downloadProgress ?: MutableStateFlow<Float?>(null)).collectAsState()
+    val isModelVerified by (viewModel?.isModelVerified ?: MutableStateFlow(false)).collectAsState()
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -119,7 +120,7 @@ fun ChatScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             painter = painterResource(
-                                id = if (currentModelId != null) R.drawable.ic_wifi_off else R.drawable.ic_wifi_off
+                                id = if (isModelVerified) R.drawable.ic_wifi_off else R.drawable.ic_wifi_off
                             ),
                             contentDescription = "",
                             tint = MaterialTheme.colorScheme.onPrimary,
@@ -127,7 +128,11 @@ fun ChatScreen(
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            if (currentModelId != null) "Model Loaded" else "No Model",
+                            when {
+                                isModelVerified -> "Ready"
+                                currentModelId != null -> "Loading..."
+                                else -> "No Model"
+                            },
                             color = MaterialTheme.colorScheme.onPrimary.copy(0.9f),
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -557,7 +562,7 @@ fun ChatScreen(
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = MaterialTheme.colorScheme.surfaceVariant
                                         ),
-                                        enabled = currentModelId != null && !isLoading
+                                        enabled = isModelVerified && !isLoading
                                     ) {
                                         Text(
                                             suggestion,
@@ -631,12 +636,12 @@ fun ChatScreen(
                         inputText = TextFieldValue("")
                     }
                 },
-                enabled = currentModelId != null && !isLoading && inputText.text.isNotBlank(),
+                enabled = isModelVerified && !isLoading && inputText.text.isNotBlank(),
                 modifier = Modifier
                     .size(50.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(
-                        if (currentModelId != null && !isLoading && inputText.text.isNotBlank()) {
+                        if (isModelVerified && !isLoading && inputText.text.isNotBlank()) {
                             Brush.linearGradient(
                                 listOf(
                                     MaterialTheme.colorScheme.primary,

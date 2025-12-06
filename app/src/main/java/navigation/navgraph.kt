@@ -103,6 +103,12 @@ fun AppNavGraph(
                 },
                 onBack = {
                     navController.popBackStack()
+                },
+                onLogout = {
+                    // Navigate to auth screen and clear back stack
+                    navController.navigate(Routes.Auth) {
+                        popUpTo(Routes.Home) { inclusive = true }
+                    }
                 }
             )
         }
