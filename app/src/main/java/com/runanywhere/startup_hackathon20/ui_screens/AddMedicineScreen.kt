@@ -216,8 +216,13 @@ fun AddMedicineScreen(
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF34D399),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                             focusedLabelColor = Color(0xFF34D399),
-                            focusedLeadingIconColor = Color(0xFF34D399)
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedLeadingIconColor = Color(0xFF34D399),
+                            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
 
@@ -235,8 +240,13 @@ fun AddMedicineScreen(
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF34D399),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                             focusedLabelColor = Color(0xFF34D399),
-                            focusedLeadingIconColor = Color(0xFF34D399)
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedLeadingIconColor = Color(0xFF34D399),
+                            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
 
@@ -254,8 +264,13 @@ fun AddMedicineScreen(
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF34D399),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                             focusedLabelColor = Color(0xFF34D399),
-                            focusedLeadingIconColor = Color(0xFF34D399)
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedLeadingIconColor = Color(0xFF34D399),
+                            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
 
@@ -273,8 +288,13 @@ fun AddMedicineScreen(
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF34D399),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                             focusedLabelColor = Color(0xFF34D399),
-                            focusedLeadingIconColor = Color(0xFF34D399)
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedLeadingIconColor = Color(0xFF34D399),
+                            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
 
@@ -292,8 +312,13 @@ fun AddMedicineScreen(
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF34D399),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                             focusedLabelColor = Color(0xFF34D399),
-                            focusedLeadingIconColor = Color(0xFF34D399)
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedLeadingIconColor = Color(0xFF34D399),
+                            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
 
@@ -311,8 +336,13 @@ fun AddMedicineScreen(
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF34D399),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                             focusedLabelColor = Color(0xFF34D399),
-                            focusedLeadingIconColor = Color(0xFF34D399)
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedLeadingIconColor = Color(0xFF34D399),
+                            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
 
@@ -331,8 +361,13 @@ fun AddMedicineScreen(
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF34D399),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                             focusedLabelColor = Color(0xFF34D399),
-                            focusedLeadingIconColor = Color(0xFF34D399)
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedLeadingIconColor = Color(0xFF34D399),
+                            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
 

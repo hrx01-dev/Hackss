@@ -145,11 +145,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         viewModelScope.launch {
-            // Save user message to database
+            // Save user message to database with current timestamp
+            val userTimestamp = System.currentTimeMillis()
             val userMessageEntity = ChatMessageEntity(
                 userId = userId,
                 text = text,
-                isUser = true
+                isUser = true,
+                timestamp = userTimestamp
             )
             repository.insertMessage(userMessageEntity, userId)
 
@@ -159,6 +161,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 // Generate response with streaming
                 var assistantResponse = ""
                 var assistantMessageId: Long? = null
+                // Ensure assistant message has a later timestamp
+                val assistantTimestamp = userTimestamp + 1
 
                 RunAnywhere.generateStream(text).collect { token ->
                     assistantResponse += token
@@ -169,7 +173,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         val assistantEntity = ChatMessageEntity(
                             userId = userId,
                             text = assistantResponse,
-                            isUser = false
+                            isUser = false,
+                            timestamp = assistantTimestamp
                         )
                         assistantMessageId = repository.insertMessage(assistantEntity, userId)
                     } else {
@@ -178,7 +183,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                             id = assistantMessageId!!,
                             userId = userId,
                             text = assistantResponse,
-                            isUser = false
+                            isUser = false,
+                            timestamp = assistantTimestamp
                         )
                         repository.insertMessage(assistantEntity, userId)
                     }
@@ -188,7 +194,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 val errorEntity = ChatMessageEntity(
                     userId = userId,
                     text = "Error: ${e.message}",
-                    isUser = false
+                    isUser = false,
+                    timestamp = userTimestamp + 1
                 )
                 repository.insertMessage(errorEntity, userId)
             }
