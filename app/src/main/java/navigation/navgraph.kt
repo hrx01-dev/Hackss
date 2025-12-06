@@ -22,7 +22,10 @@ import com.runanywhere.startup_hackathon20.ui_screens.SplashScreen
  * Handles navigation between all screens in the app.
  */
 @Composable
-fun AppNavGraph(navController: NavHostController) {
+fun AppNavGraph(
+    navController: NavHostController,
+    onThemeChange: (String) -> Unit = {}
+) {
     // State for theme in settings screen
     val theme: MutableState<String> = remember { mutableStateOf("light") }
 
@@ -96,6 +99,7 @@ fun AppNavGraph(navController: NavHostController) {
                 theme = theme.value,
                 onThemeChange = { newTheme ->
                     theme.value = newTheme
+                    onThemeChange(newTheme) // Propagate theme change to MainActivity
                 },
                 onBack = {
                     navController.popBackStack()

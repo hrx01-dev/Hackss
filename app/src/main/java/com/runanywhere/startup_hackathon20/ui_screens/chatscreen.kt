@@ -39,13 +39,18 @@ fun ChatScreen(
     viewModel: ChatViewModel? = viewModel()
 ) {
     var inputText by remember { mutableStateOf(TextFieldValue("")) }
+    var showModelDialog by remember { mutableStateOf(false) }
 
     // Collect messages from ViewModel
     val messages by (viewModel?.messages ?: MutableStateFlow(emptyList())).collectAsState()
     val isLoading by (viewModel?.isLoading ?: MutableStateFlow(false)).collectAsState()
     val currentModelId by (viewModel?.currentModelId
         ?: MutableStateFlow<String?>(null)).collectAsState()
-    val statusMessage by (viewModel?.statusMessage ?: MutableStateFlow("Initializing...")).collectAsState()
+    val statusMessage by (viewModel?.statusMessage
+        ?: MutableStateFlow("Initializing...")).collectAsState()
+    val availableModels by (viewModel?.availableModels
+        ?: MutableStateFlow(emptyList())).collectAsState()
+    val downloadProgress by (viewModel?.downloadProgress ?: MutableStateFlow<Float?>(null)).collectAsState()
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -69,7 +74,7 @@ fun ChatScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F7F7))
+            .background(MaterialTheme.colorScheme.background)
     ) {
 
         // 🔥 TOP BAR WITH GRADIENT
@@ -79,8 +84,8 @@ fun ChatScreen(
                 .background(
                     Brush.horizontalGradient(
                         listOf(
-                            Color(0xFF4CAF50),
-                            Color(0xFF2ecc71)
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.secondary
                         )
                     )
                 )
@@ -99,7 +104,7 @@ fun ChatScreen(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_arrow_left),
                         contentDescription = "Back",
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
 
@@ -108,7 +113,7 @@ fun ChatScreen(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         "Expert Chat",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Bold
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -117,13 +122,13 @@ fun ChatScreen(
                                 id = if (currentModelId != null) R.drawable.ic_wifi_off else R.drawable.ic_wifi_off
                             ),
                             contentDescription = "",
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(14.dp)
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
                             if (currentModelId != null) "Model Loaded" else "No Model",
-                            color = Color.White.copy(0.9f),
+                            color = MaterialTheme.colorScheme.onPrimary.copy(0.9f),
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -138,12 +143,12 @@ fun ChatScreen(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.2f))
+                            .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_delete),
                             contentDescription = "Clear Chat",
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -172,6 +177,181 @@ fun ChatScreen(
                     }
                 }
             }
+        }
+
+        // 🔥 MODEL SETUP BANNER (shown when no model is loaded)
+        if (currentModelId == null && viewModel != null) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF3C7)),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_lightbulb),
+                            contentDescription = null,
+                            tint = Color(0xFFF59E0B),
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "Setup Required",
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF92400E)
+                            )
+                            Text(
+                                "Download AI model to start chatting",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF92400E)
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+
+                    Button(
+                        onClick = { showModelDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFF59E0B)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Setup AI Model", color = Color.White)
+                    }
+
+                    downloadProgress?.let { progress ->
+                        Spacer(Modifier.height(8.dp))
+                        LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth(),
+                            color = Color(0xFFF59E0B),
+                        )
+                        Text(
+                            "Downloading: ${(progress * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFF92400E),
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        // 🔥 MODEL SETUP DIALOG
+        if (showModelDialog && viewModel != null) {
+            AlertDialog(
+                onDismissRequest = { showModelDialog = false },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_lightbulb),
+                            contentDescription = null,
+                            tint = Color(0xFF4CAF50)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text("AI Model Setup")
+                    }
+                },
+                text = {
+                    Column {
+                        if (availableModels.isEmpty()) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                            Spacer(Modifier.height(8.dp))
+                            Text("Loading available models...")
+                        } else {
+                            Text(
+                                "Choose an AI model to download and enable chat:",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Spacer(Modifier.height(12.dp))
+
+                            availableModels.forEach { model ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color(0xFFF0FDF4)
+                                    )
+                                ) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Text(
+                                            model.name,
+                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.typography.titleSmall
+                                        )
+                                        Text(
+                                            "Size: ~374 MB",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color.Gray
+                                        )
+
+                                        Spacer(Modifier.height(8.dp))
+
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            if (!model.isDownloaded) {
+                                                Button(
+                                                    onClick = {
+                                                        viewModel.downloadModel(model.id)
+                                                    },
+                                                    modifier = Modifier.weight(1f),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = Color(0xFF4CAF50)
+                                                    ),
+                                                    enabled = downloadProgress == null
+                                                ) {
+                                                    Text("Download", color = Color.White)
+                                                }
+                                            } else {
+                                                Button(
+                                                    onClick = {
+                                                        viewModel.loadModel(model.id)
+                                                        showModelDialog = false
+                                                    },
+                                                    modifier = Modifier.weight(1f),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = Color(0xFF2ECC71)
+                                                    )
+                                                ) {
+                                                    Text("Load Model", color = Color.White)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            downloadProgress?.let { progress ->
+                                Spacer(Modifier.height(8.dp))
+                                LinearProgressIndicator(
+                                    progress = { progress },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = Color(0xFF4CAF50),
+                                )
+                                Text(
+                                    "Downloading: ${(progress * 100).toInt()}%",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showModelDialog = false }) {
+                        Text("Close")
+                    }
+                }
+            )
         }
 
         // 🔥 MESSAGES LIST
@@ -221,15 +401,15 @@ fun ChatScreen(
                                     Modifier.background(
                                         brush = Brush.linearGradient(
                                             listOf(
-                                                Color(0xFF4CAF50),
-                                                Color(0xFF2ECC71)
+                                                MaterialTheme.colorScheme.primary,
+                                                MaterialTheme.colorScheme.secondary
                                             )
                                         ),
                                         shape = RoundedCornerShape(20.dp)
                                     )
                                 } else {
                                     Modifier.background(
-                                        color = Color.White,
+                                        color = MaterialTheme.colorScheme.surface,
                                         shape = RoundedCornerShape(20.dp)
                                     )
                                 }
@@ -239,7 +419,7 @@ fun ChatScreen(
                     ) {
                         Text(
                             message.text,
-                            color = if (message.isUser) Color.White else Color.Black
+                            color = if (message.isUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -292,14 +472,14 @@ fun ChatScreen(
                         Box(
                             modifier = Modifier
                                 .background(
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.surface,
                                     shape = RoundedCornerShape(20.dp)
                                 )
                                 .padding(14.dp)
                         ) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
-                                color = Color(0xFF4CAF50),
+                                color = MaterialTheme.colorScheme.primary,
                                 strokeWidth = 2.dp
                             )
                         }
@@ -320,10 +500,12 @@ fun ChatScreen(
                 value = inputText,
                 onValueChange = { inputText = it },
                 placeholder = { Text("Type your question...") },
-                modifier = Modifier
-                    .weight(1f)
-                    .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)),
-                shape = RoundedCornerShape(12.dp)
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                )
             )
 
             Spacer(Modifier.width(10.dp))
@@ -343,15 +525,15 @@ fun ChatScreen(
                         if (currentModelId != null && !isLoading && inputText.text.isNotBlank()) {
                             Brush.linearGradient(
                                 listOf(
-                                    Color(0xFF4CAF50),
-                                    Color(0xFF2ECC71)
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.secondary
                                 )
                             )
                         } else {
                             Brush.linearGradient(
                                 listOf(
-                                    Color.Gray.copy(alpha = 0.5f),
-                                    Color.Gray.copy(alpha = 0.5f)
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    MaterialTheme.colorScheme.surfaceVariant
                                 )
                             )
                         }
@@ -367,7 +549,7 @@ fun ChatScreen(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_send),
                         contentDescription = "Send",
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }

@@ -1,5 +1,5 @@
 package com.runanywhere.startup_hackathon20.ui_screens
-import com.runanywhere.startup_hackathon20.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

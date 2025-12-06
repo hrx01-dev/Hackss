@@ -64,12 +64,15 @@ fun SettingsScreen(
         Column(Modifier.padding(16.dp)) {
 
             // THEME SELECTOR CARD
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(20.dp))
-                    .shadow(2.dp, RoundedCornerShape(20.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             ) {
+                Column(Modifier.fillMaxWidth()) {
 
                 // Toggle Row
                 Row(
@@ -146,18 +149,22 @@ fun SettingsScreen(
                         ) { onThemeChange("dark") }
                     }
                 }
+                }
             }
 
             Spacer(Modifier.height(22.dp))
 
             // ACCOUNT SECTION (only show if user is logged in)
             if (currentUser != null) {
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .background(Color.White, RoundedCornerShape(20.dp))
-                        .shadow(2.dp, RoundedCornerShape(20.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
+                    Column(Modifier.fillMaxWidth()) {
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -232,19 +239,21 @@ fun SettingsScreen(
                             tint = Color.Gray
                         )
                     }
+                    }
                 }
 
                 Spacer(Modifier.height(22.dp))
             }
 
             // ABOUT SECTION
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(20.dp))
-                    .shadow(2.dp, RoundedCornerShape(20.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             ) {
-
                 Row(
                     Modifier
                         .fillMaxWidth()

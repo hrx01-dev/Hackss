@@ -64,22 +64,22 @@ fun InsightsScreen(
     Column(
         Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAF9))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // TOP BAR
         Row(
             Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF34D399))
+                .background(MaterialTheme.colorScheme.primary)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onPrimary)
             }
             Text(
                 "Medical Insights",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge
             )
         }
@@ -111,7 +111,7 @@ fun InsightsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = Color(0xFF34D399))
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else if (medicines.isEmpty()) {
                 // Empty state
@@ -188,13 +188,15 @@ fun MedicineCard(medicine: Medicine, onDelete: () -> Unit) {
     val dateFormat = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.getDefault())
     val formattedDate = dateFormat.format(Date(medicine.createdAt))
 
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .shadow(4.dp, RoundedCornerShape(22.dp))
-            .background(Color.White, RoundedCornerShape(22.dp))
-            .padding(20.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
+        Column(Modifier.padding(20.dp)) {
         // Header with medicine name and delete button
         Row(
             Modifier.fillMaxWidth(),
@@ -234,13 +236,13 @@ fun MedicineCard(medicine: Medicine, onDelete: () -> Unit) {
             Box(
                 Modifier
                     .size(60.dp)
-                    .background(Color(0xFF34D399), RoundedCornerShape(16.dp)),
+                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Default.MedicalServices,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -248,10 +250,14 @@ fun MedicineCard(medicine: Medicine, onDelete: () -> Unit) {
             Spacer(Modifier.width(12.dp))
 
             Column {
-                Text("Dosage", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                Text(
+                    "Dosage",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall
+                )
                 Text(
                     medicine.dosage,
-                    color = Color(0xFF059669),
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -264,8 +270,11 @@ fun MedicineCard(medicine: Medicine, onDelete: () -> Unit) {
         Column(
             Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFEFFDF4), RoundedCornerShape(18.dp))
-                .border(1.dp, Color(0xFFBBF7D0), RoundedCornerShape(18.dp))
+                .background(
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                    RoundedCornerShape(18.dp)
+                )
+                .border(1.dp, MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(18.dp))
                 .padding(16.dp)
         ) {
             InfoGrid("Frequency", medicine.frequency)
@@ -280,20 +289,23 @@ fun MedicineCard(medicine: Medicine, onDelete: () -> Unit) {
         Column(
             Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFF3F4F6), RoundedCornerShape(12.dp))
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    RoundedCornerShape(12.dp)
+                )
                 .padding(12.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = null,
-                    tint = Color(0xFF34D399),
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     "Instructions",
-                    color = Color(0xFF059669),
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleSmall
                 )
@@ -302,7 +314,7 @@ fun MedicineCard(medicine: Medicine, onDelete: () -> Unit) {
             Text(
                 medicine.instructions,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF374151)
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
 
@@ -316,6 +328,7 @@ fun MedicineCard(medicine: Medicine, onDelete: () -> Unit) {
             color = Color.Gray,
             style = MaterialTheme.typography.labelSmall
         )
+        }
     }
 }
 

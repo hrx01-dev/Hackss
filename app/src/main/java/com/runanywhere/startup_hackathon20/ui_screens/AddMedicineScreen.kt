@@ -99,22 +99,26 @@ fun AddMedicineScreen(
     Column(
         Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAF9))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // TOP BAR
         Row(
             Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF34D399))
+                .background(MaterialTheme.colorScheme.primary)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
             }
             Text(
                 "Add Medicine",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge
             )
         }
@@ -167,13 +171,16 @@ fun AddMedicineScreen(
                         Box(
                             modifier = Modifier
                                 .size(60.dp)
-                                .background(Color(0xFF34D399), RoundedCornerShape(16.dp)),
+                                .background(
+                                    MaterialTheme.colorScheme.primary,
+                                    RoundedCornerShape(16.dp)
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 Icons.Default.MedicalServices,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(32.dp)
                             )
                         }

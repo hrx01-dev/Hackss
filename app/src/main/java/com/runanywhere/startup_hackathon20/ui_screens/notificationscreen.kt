@@ -71,7 +71,7 @@ fun NotificationsScreen(onBack: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
-            .background(Color(0xFFF3F4F6))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // TOP BAR
         Row(
@@ -79,18 +79,25 @@ fun NotificationsScreen(onBack: () -> Unit) {
                 .fillMaxWidth()
                 .background(
                     Brush.horizontalGradient(
-                        listOf(Color(0xFF34D399), Color(0xFF10B981))
+                        listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.secondary
+                        )
                     )
                 )
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
             }
             Text(
                 "Daily Insights",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge
             )
         }
@@ -110,13 +117,15 @@ fun NotificationsScreen(onBack: () -> Unit) {
 
 @Composable
 fun InsightCard(insight: NotificationInsight) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .shadow(4.dp, RoundedCornerShape(18.dp))
-            .background(Color.White, RoundedCornerShape(18.dp))
-            .padding(16.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
+        Box(Modifier.padding(16.dp)) {
         Row(verticalAlignment = Alignment.Top) {
 
             // ICON GRADIENT BOX
@@ -132,12 +141,25 @@ fun InsightCard(insight: NotificationInsight) {
             Spacer(Modifier.width(14.dp))
 
             Column(Modifier.weight(1f)) {
-                Text(insight.title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    insight.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
                 Spacer(Modifier.height(4.dp))
-                Text(insight.description, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                Text(
+                    insight.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Spacer(Modifier.height(6.dp))
-                Text(insight.time, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                Text(
+                    insight.time,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
+        }
         }
     }
 }

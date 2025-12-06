@@ -12,6 +12,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.res.painterResource
@@ -22,11 +23,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.runanywhere.startup_hackathon20.R
 import com.runanywhere.startup_hackathon20.viewmodel.AuthViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun AuthScreen(
     onComplete: () -> Unit,
-    viewModel: AuthViewModel = viewModel()
+    viewModel: AuthViewModel? = viewModel()
 ) {
     var activeTab by remember { mutableStateOf("login") }
     var name by remember { mutableStateOf("") }
@@ -34,9 +36,9 @@ fun AuthScreen(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    val isLoading by viewModel.isLoading.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
-    val authSuccess by viewModel.authSuccess.collectAsState()
+    val isLoading by (viewModel?.isLoading ?: MutableStateFlow(false)).collectAsState()
+    val errorMessage by (viewModel?.errorMessage ?: MutableStateFlow<String?>(null)).collectAsState()
+    val authSuccess by (viewModel?.authSuccess ?: MutableStateFlow(false)).collectAsState()
 
     // Navigate when auth is successful
     LaunchedEffect(authSuccess) {
@@ -139,9 +141,9 @@ fun AuthScreen(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             if (activeTab == "login") {
-                                viewModel.login(username, password)
+                                viewModel?.login(username, password)
                             } else {
-                                viewModel.register(name, username, password, confirmPassword)
+                                viewModel?.register(name, username, password, confirmPassword)
                             }
                         },
                         enabled = !isLoading,
@@ -236,43 +238,65 @@ fun InputField(
     icon: Int,
     isPassword: Boolean = false
 ) {
-    Column(Modifier.padding(bottom = 12.dp)) {
+    var isFocused by remember { mutableStateOf(false) }
 
-        Text(label, color = Color.DarkGray)
-
-        Row(
-            Modifier
+    Column(Modifier.padding(bottom = 16.dp)) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = {
+                Text(
+                    label,
+                    color = if (isFocused) Color(0xFF2EAD73) else Color.Gray
+                )
+            },
+            placeholder = { Text("Enter $label", color = Color.LightGray) },
+            leadingIcon = {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(
+                            if (isFocused)
+                                Brush.linearGradient(
+                                    listOf(Color(0xFF4CAF50), Color(0xFF2EAD73))
+                                )
+                            else
+                                Brush.linearGradient(
+                                    listOf(Color(0xFFE0E0E0), Color(0xFFBDBDBD))
+                                ),
+                            shape = RoundedCornerShape(10.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = icon),
+                        contentDescription = label,
+                        tint = if (isFocused) Color.White else Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            },
+            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+            modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFEAEAEA))
-                .padding(12.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = label,
-                tint = Color.Gray
-            )
-
-            Spacer(Modifier.width(12.dp))
-
-            OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
-                placeholder = { Text("Enter $label") },
-                visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-
-
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFEAEAEA))
-
-            )
-        }
+                .onFocusChanged { isFocused = it.isFocused },
+            shape = RoundedCornerShape(16.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFF2EAD73),
+                unfocusedBorderColor = Color(0xFFE0E0E0),
+                focusedLabelColor = Color(0xFF2EAD73),
+                unfocusedLabelColor = Color.Gray,
+                cursorColor = Color(0xFF2EAD73),
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color(0xFFF8F9FA)
+            ),
+            singleLine = true
+        )
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AuthScreenPreview() {
-    AuthScreen(onComplete = {})
+    AuthScreen(onComplete = {}, viewModel = null)
 }

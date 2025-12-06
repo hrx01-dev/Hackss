@@ -56,7 +56,7 @@ fun HomeScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF6F6F6))
+            .background(MaterialTheme.colorScheme.background)
     ) {
 
         item {
@@ -66,7 +66,10 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .background(
                         Brush.linearGradient(
-                            listOf(Color(0xFF4CAF50), Color(0xFF2ECC71))
+                            listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.secondary
+                            )
                         )
                     )
                     .padding(top = 60.dp, bottom = 30.dp, start = 24.dp, end = 24.dp)
@@ -83,7 +86,7 @@ fun HomeScreen(
                         Column {
                             Text(
                                 "Hello, $userName",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = MaterialTheme.typography.headlineSmall.fontSize
                             )
@@ -92,13 +95,13 @@ fun HomeScreen(
                                 Icon(
                                     imageVector = Icons.Default.WifiOff,
                                     contentDescription = "",
-                                    tint = Color.White,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(Modifier.width(6.dp))
                                 Text(
                                     "Offline Mode Active",
-                                    color = Color.White.copy(alpha = 0.9f),
+                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
                                     fontSize = MaterialTheme.typography.bodySmall.fontSize
                                 )
                             }
@@ -123,15 +126,17 @@ fun HomeScreen(
                         onClick = { onNavigate("chat") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(18.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Chat,
                             contentDescription = "",
-                            tint = Color(0xFF2ECC71)
+                            tint = MaterialTheme.colorScheme.primary
                         )
                         Spacer(Modifier.width(10.dp))
-                        Text("Ask Expert", color = Color(0xFF2ECC71))
+                        Text("Ask Expert", color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -142,7 +147,8 @@ fun HomeScreen(
             Text(
                 "Categories",
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 
@@ -177,7 +183,8 @@ fun HomeScreen(
             Text(
                 "Recent Insights",
                 modifier = Modifier.padding(24.dp),
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 
@@ -186,13 +193,27 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 6.dp),
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(insight.title, fontWeight = FontWeight.Bold)
-                    Text(insight.description, color = Color.Gray)
+                    Text(
+                        insight.title,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        insight.description,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     Spacer(Modifier.height(4.dp))
-                    Text(insight.time, color = Color.LightGray, fontSize = 12.sp)
+                    Text(
+                        insight.time,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        fontSize = 12.sp
+                    )
                 }
             }
         }
@@ -206,12 +227,12 @@ fun CircleIconButton(icon: ImageVector, onClick: () -> Unit) {
         modifier = Modifier
             .size(46.dp)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.2f))
+            .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
     ) {
         Icon(
             imageVector = icon,
             contentDescription = "",
-            tint = Color.White
+            tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -226,7 +247,9 @@ fun RowScope.CategoryCard(
     Button(
         onClick = onClick,
         modifier = Modifier.weight(1f),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -236,21 +259,26 @@ fun RowScope.CategoryCard(
                     .size(60.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(
-                        Brush.linearGradient(gradient)
+                        Brush.linearGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.secondary
+                            )
+                        )
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = "",
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(28.dp)
                 )
             }
 
             Spacer(Modifier.height(8.dp))
 
-            Text(label, color = Color.Black)
+            Text(label, color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }

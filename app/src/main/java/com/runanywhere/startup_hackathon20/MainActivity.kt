@@ -23,9 +23,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Startup_hackathon20Theme {
+            var isDarkTheme by remember { mutableStateOf(false) }
+            
+            Startup_hackathon20Theme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
-                AppNavGraph(navController = navController)
+                AppNavGraph(
+                    navController = navController,
+                    onThemeChange = { theme ->
+                        isDarkTheme = theme == "dark"
+                    }
+                )
             }
         }
     }
