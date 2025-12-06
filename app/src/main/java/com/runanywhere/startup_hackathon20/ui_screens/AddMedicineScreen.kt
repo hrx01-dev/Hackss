@@ -18,12 +18,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.runanywhere.startup_hackathon20.ui.theme.Startup_hackathon20Theme
 import com.runanywhere.startup_hackathon20.viewmodel.MedicineViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun AddMedicineScreen(
     onBack: () -> Unit,
     onMedicineAdded: () -> Unit = {},
-    viewModel: MedicineViewModel = viewModel()
+    viewModel: MedicineViewModel? = viewModel()
 ) {
     var name by remember { mutableStateOf("") }
     var dosage by remember { mutableStateOf("") }
@@ -34,8 +35,8 @@ fun AddMedicineScreen(
     var instructions by remember { mutableStateOf("") }
     var showSuccess by remember { mutableStateOf(false) }
 
-    val isLoading by viewModel.isLoading.collectAsState()
-    val error by viewModel.error.collectAsState()
+    val isLoading by (viewModel?.isLoading ?: MutableStateFlow(false)).collectAsState()
+    val error by (viewModel?.error ?: MutableStateFlow<String?>(null)).collectAsState()
 
     // Success dialog
     if (showSuccess) {
@@ -336,7 +337,7 @@ fun AddMedicineScreen(
                                 duration.isNotBlank() && quantity.isNotBlank() &&
                                 instructions.isNotBlank()
                             ) {
-                                viewModel.insertMedicine(
+                                viewModel?.insertMedicine(
                                     name = name.trim(),
                                     dosage = dosage.trim(),
                                     frequency = frequency.trim(),
@@ -413,7 +414,8 @@ fun AddMedicineScreenPreview() {
     Startup_hackathon20Theme {
         AddMedicineScreen(
             onBack = {},
-            onMedicineAdded = {}
+            onMedicineAdded = {},
+            viewModel = null
         )
     }
 }

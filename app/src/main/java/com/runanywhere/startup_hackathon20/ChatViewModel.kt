@@ -1,23 +1,30 @@
 package com.runanywhere.startup_hackathon20
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.runanywhere.sdk.public.RunAnywhere
 import com.runanywhere.sdk.public.extensions.listAvailableModels
 import com.runanywhere.sdk.models.ModelInfo
+import com.runanywhere.startup_hackathon20.database.ChatMessageEntity
+import com.runanywhere.startup_hackathon20.database.ChatMessageRepository
+import com.runanywhere.startup_hackathon20.database.MedicineDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 // Simple Message Data Class
 data class ChatMessage(
+    val id: Long = 0,
     val text: String,
-    val isUser: Boolean
+    val isUser: Boolean,
+    val timestamp: Long = System.currentTimeMillis()
 )
 
 // ViewModel
-class ChatViewModel : ViewModel() {
+class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val repository: ChatMessageRepository
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages
 
@@ -37,7 +44,27 @@ class ChatViewModel : ViewModel() {
     val statusMessage: StateFlow<String> = _statusMessage
 
     init {
+        val database = MedicineDatabase.getDatabase(application)
+        val chatMessageDao = database.chatMessageDao()
+        repository = ChatMessageRepository(chatMessageDao)
+
         loadAvailableModels()
+        loadMessagesFromDatabase()
+    }
+
+    private fun loadMessagesFromDatabase() {
+        viewModelScope.launch {
+            repository.recent20Messages.collect { dbMessages ->
+                _messages.value = dbMessages.map { entity ->
+                    ChatMessage(
+                        id = entity.id,
+                        text = entity.text,
+                        isUser = entity.isUser,
+                        timestamp = entity.timestamp
+                    )
+                }
+            }
+        }
     }
 
     private fun loadAvailableModels() {
@@ -92,33 +119,58 @@ class ChatViewModel : ViewModel() {
             return
         }
 
-        // Add user message
-        _messages.value += ChatMessage(text, isUser = true)
-
         viewModelScope.launch {
+            // Save user message to database
+            val userMessageEntity = ChatMessageEntity(
+                text = text,
+                isUser = true
+            )
+            repository.insertMessage(userMessageEntity)
+
             _isLoading.value = true
 
             try {
                 // Generate response with streaming
                 var assistantResponse = ""
+                var assistantMessageId: Long? = null
+
                 RunAnywhere.generateStream(text).collect { token ->
                     assistantResponse += token
 
-                    // Update assistant message in real-time
-                    val currentMessages = _messages.value.toMutableList()
-                    if (currentMessages.lastOrNull()?.isUser == false) {
-                        currentMessages[currentMessages.lastIndex] =
-                            ChatMessage(assistantResponse, isUser = false)
+                    // Save or update assistant message in database
+                    if (assistantMessageId == null) {
+                        // First token - create new assistant message
+                        val assistantEntity = ChatMessageEntity(
+                            text = assistantResponse,
+                            isUser = false
+                        )
+                        assistantMessageId = repository.insertMessage(assistantEntity)
                     } else {
-                        currentMessages.add(ChatMessage(assistantResponse, isUser = false))
+                        // Update existing assistant message
+                        val assistantEntity = ChatMessageEntity(
+                            id = assistantMessageId!!,
+                            text = assistantResponse,
+                            isUser = false
+                        )
+                        repository.insertMessage(assistantEntity)
                     }
-                    _messages.value = currentMessages
                 }
             } catch (e: Exception) {
-                _messages.value += ChatMessage("Error: ${e.message}", isUser = false)
+                // Save error message to database
+                val errorEntity = ChatMessageEntity(
+                    text = "Error: ${e.message}",
+                    isUser = false
+                )
+                repository.insertMessage(errorEntity)
             }
 
             _isLoading.value = false
+        }
+    }
+
+    fun clearAllMessages() {
+        viewModelScope.launch {
+            repository.deleteAllMessages()
         }
     }
 

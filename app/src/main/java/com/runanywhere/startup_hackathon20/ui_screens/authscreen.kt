@@ -19,16 +19,31 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.runanywhere.startup_hackathon20.R
+import com.runanywhere.startup_hackathon20.viewmodel.AuthViewModel
 
 @Composable
-fun AuthScreen(onComplete: () -> Unit) {
-
+fun AuthScreen(
+    onComplete: () -> Unit,
+    viewModel: AuthViewModel = viewModel()
+) {
     var activeTab by remember { mutableStateOf("login") }
     var name by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val authSuccess by viewModel.authSuccess.collectAsState()
+
+    // Navigate when auth is successful
+    LaunchedEffect(authSuccess) {
+        if (authSuccess) {
+            onComplete()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -110,23 +125,55 @@ fun AuthScreen(onComplete: () -> Unit) {
 
                     Spacer(Modifier.height(18.dp))
 
+                    // Error message display
+                    errorMessage?.let { error ->
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+
                     Button(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onComplete() },
+                        onClick = {
+                            if (activeTab == "login") {
+                                viewModel.login(username, password)
+                            } else {
+                                viewModel.register(name, username, password, confirmPassword)
+                            }
+                        },
+                        enabled = !isLoading,
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                     ) {
                         Box(
                             modifier = Modifier
                                 .background(
-                                    Brush.horizontalGradient(listOf(Color(0xFF4CAF50), Color(0xFF2EAD73))),
+                                    Brush.horizontalGradient(
+                                        listOf(
+                                            Color(0xFF4CAF50),
+                                            Color(0xFF2EAD73)
+                                        )
+                                    ),
                                     RoundedCornerShape(16.dp)
                                 )
                                 .padding(14.dp)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = if (activeTab == "login") "Login" else "Create Account",
-                                color = Color.White
-                            )
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    color = Color.White,
+                                    modifier = Modifier.size(24.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text(
+                                    text = if (activeTab == "login") "Login" else "Create Account",
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
 
@@ -215,7 +262,8 @@ fun InputField(
                 visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
 
 
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .background(Color(0xFFEAEAEA))
 
             )

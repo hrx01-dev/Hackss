@@ -17,15 +17,24 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.runanywhere.startup_hackathon20.viewmodel.HomeViewModel
+import com.runanywhere.startup_hackathon20.ui.theme.Startup_hackathon20Theme
+import kotlinx.coroutines.flow.MutableStateFlow
 
 
 @Composable
 fun SettingsScreen(
     theme: String,
     onThemeChange: (String) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLogout: () -> Unit = {},
+    viewModel: HomeViewModel? = viewModel()
 ) {
+    val currentUser by (viewModel?.currentUser ?: MutableStateFlow(null)).collectAsState()
+    var showLogoutDialog by remember { mutableStateOf(false) }
     var showThemeSelector by remember { mutableStateOf(false) }
 
     Column(
@@ -141,6 +150,93 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(22.dp))
 
+            // ACCOUNT SECTION (only show if user is logged in)
+            if (currentUser != null) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Color.White, RoundedCornerShape(20.dp))
+                        .shadow(2.dp, RoundedCornerShape(20.dp))
+                ) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            Modifier
+                                .size(45.dp)
+                                .background(Color(0xFF10B981), RoundedCornerShape(12.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.AccountCircle,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
+
+                        Spacer(Modifier.width(14.dp))
+
+                        Column(Modifier.weight(1f)) {
+                            Text("Account", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                currentUser?.username ?: "Not logged in",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+
+                    Divider(Modifier.padding(horizontal = 20.dp))
+
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { showLogoutDialog = true }
+                            .padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            Modifier
+                                .size(45.dp)
+                                .background(Color(0xFFEF4444), RoundedCornerShape(12.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Logout,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
+
+                        Spacer(Modifier.width(14.dp))
+
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                "Logout",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color(0xFFEF4444)
+                            )
+                            Text(
+                                "Sign out of your account",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                        }
+
+                        Icon(
+                            Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = Color.Gray
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(22.dp))
+            }
+
             // ABOUT SECTION
             Column(
                 Modifier
@@ -182,6 +278,31 @@ fun SettingsScreen(
                 Text("MediInsight", color = Color.Gray)
                 Text("All data stored securely on your device", color = Color(0xFF9CA3AF), fontSize = MaterialTheme.typography.labelSmall.fontSize)
             }
+        }
+
+        // Logout confirmation dialog
+        if (showLogoutDialog) {
+            AlertDialog(
+                onDismissRequest = { showLogoutDialog = false },
+                title = { Text("Logout") },
+                text = { Text("Are you sure you want to logout? You'll need to login again to access your account.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel?.logout()
+                            showLogoutDialog = false
+                            onLogout()
+                        }
+                    ) {
+                        Text("Logout", color = Color(0xFFEF4444))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showLogoutDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }
@@ -242,6 +363,72 @@ fun ThemeOption(
                     )
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Settings Screen - Light Theme")
+@Composable
+fun SettingsScreenLightPreview() {
+    Startup_hackathon20Theme {
+        SettingsScreen(
+            theme = "light",
+            onThemeChange = {},
+            onBack = {},
+            onLogout = {},
+            viewModel = null
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Settings Screen - Dark Theme")
+@Composable
+fun SettingsScreenDarkPreview() {
+    Startup_hackathon20Theme {
+        SettingsScreen(
+            theme = "dark",
+            onThemeChange = {},
+            onBack = {},
+            onLogout = {},
+            viewModel = null
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Theme Option - Light", widthDp = 350)
+@Composable
+fun ThemeOptionLightPreview() {
+    Startup_hackathon20Theme {
+        Surface(modifier = Modifier.padding(16.dp)) {
+            ThemeOption(
+                selected = true,
+                title = "Light Mode",
+                subtitle = "Green & White",
+                gradient = Brush.horizontalGradient(
+                    listOf(Color(0xFFE8FDEB), Color(0xFFD1FADF))
+                ),
+                icon = Icons.Default.WbSunny,
+                onClick = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Theme Option - Dark", widthDp = 350)
+@Composable
+fun ThemeOptionDarkPreview() {
+    Startup_hackathon20Theme {
+        Surface(modifier = Modifier.padding(16.dp)) {
+            ThemeOption(
+                selected = false,
+                title = "Dark Mode",
+                subtitle = "Slate & Indigo",
+                gradient = Brush.horizontalGradient(
+                    listOf(Color(0xFF1E293B), Color(0xFF312E81))
+                ),
+                icon = Icons.Default.DarkMode,
+                onClick = {}
+            )
         }
     }
 }
